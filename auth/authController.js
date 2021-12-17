@@ -1,5 +1,5 @@
 const express = require("express");
-const jwt = require("jwt");
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const bodyParser = require("body-parser");
 
@@ -131,3 +131,5 @@ router.get("/", (req, res) => {
     res.status(200).send(users);
   });
 });
+
+module.exports = router;
