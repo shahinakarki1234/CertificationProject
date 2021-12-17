@@ -5,13 +5,19 @@ const bodyParser = require("body-parser");
 
 const config = require("../config");
 const User = require("../models/User");
-const checkLoggedIn = require("./authMiddleware");
 const router = express.Router();
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
 
-router.post("/users/register", (req, res) => {
+router.post("/register", (req, res) => {
+  if (!req.body.email || !req.body.password) {
+    res.status(400).send({
+      status: "failed",
+      message: "Please pass email and password",
+    });
+    return;
+  }
   const hashedPassword = bcrypt.hashSync(req.body.password, 8);
   User.create(
     {
@@ -40,7 +46,15 @@ router.post("/users/register", (req, res) => {
   );
 });
 
-router.post("/users/login", (req, res) => {
+router.post("/login", (req, res) => {
+  if (!req.body.email || !req.body.password) {
+    res.status(400).send({
+      status: "failed",
+      message: "Please pass email and password",
+    });
+    return;
+  }
+
   User.findOne(
     {
       email: req.body.email,
@@ -67,69 +81,11 @@ router.post("/users/login", (req, res) => {
       });
       res.status(200).send({
         status: "success",
-        message: "user loggein successfully",
+        message: "user logged in successfully",
         accessToken: token,
       });
     }
   );
-});
-
-router.get("/profile", checkLoggedIn, (req, res) => {
-  User.findById(req.user.id, { password: 0 }, (err, user) => {
-    if (err) return res.status(500).send(`problem finding the user ${err}`);
-
-    if (!user) {
-      return res.status(404).send(`User not found`);
-    }
-    res.status(200).send({
-      status: "success",
-      profile: user,
-    });
-  });
-});
-
-router.delete("/profile/:field", checkLoggedIn, (req, res) => {
-  User.updateOne(
-    { _id: req.user.id },
-    { $unset: { [req.params.field]: "" } },
-    (err, user) => {
-      if (err) return res.status(500).send(`problem finding the user ${err}`);
-
-      if (!user) {
-        return res.status(404).send(`User not found`);
-      }
-      res.status(200).send({
-        status: "success",
-        message: `profile ${req.params.field} deleted successfully`,
-      });
-    }
-  );
-});
-
-router.patch("/profile/:field", checkLoggedIn, (req, res) => {
-  User.updateOne(
-    { _id: req.user.id },
-    { $set: { [req.params.field]: req.body[req.params.field] } },
-    (err, user) => {
-      if (err) return res.status(500).send(`problem finding the user ${err}`);
-
-      if (!user) {
-        return res.status(404).send(`User not found`);
-      }
-      res.status(200).send({
-        status: "success",
-        message: `profile ${req.params.field} updated successfully`,
-      });
-    }
-  );
-});
-
-router.get("/", (req, res) => {
-  User.find({}, (err, users) => {
-    if (err)
-      return res.status(500).send(`There was an error getting users ${err}`);
-    res.status(200).send(users);
-  });
 });
 
 module.exports = router;

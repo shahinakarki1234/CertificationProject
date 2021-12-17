@@ -4,8 +4,14 @@ const mongoose = require("mongoose");
 const app = express();
 const port = 8080;
 
-const authController = require("./auth/authController");
-app.use("/api/v1", authController);
+const userController = require("./user/userController");
+app.use("/api/v1/users", userController);
+
+const profileController = require("./profile/profileController");
+app.use("/api/v1/profile", profileController);
+
+const homepageController = require("./homepage/homepageController");
+app.use("/api/v1/homepage", homepageController);
 
 mongoose
   .connect("mongodb://localhost:27017/shop247", {

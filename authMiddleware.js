@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const config = require("./config");
 
 const checkLoggedIn = function (req, res, next) {
   const token = req.headers["x-access-token"];
@@ -10,6 +11,7 @@ const checkLoggedIn = function (req, res, next) {
       return res
         .status(500)
         .send({ auth: false, token: "failed to authenticate token" });
+
     req.user = decoded;
     next();
   });
