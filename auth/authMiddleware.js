@@ -1,4 +1,4 @@
-const jwt = require("jwt");
+const jwt = require("jsonwebtoken");
 
 const checkLoggedIn = function (req, res, next) {
   const token = req.headers["x-access-token"];
